@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  role     String // ADMIN, MANAGER, EMPLOYEE
+  name     String
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  managerId String?
+  manager   User?   @relation("UserToManager", fields: [managerId], references: [id])
+  employees User[]  @relation("UserToManager")
+
+  expenses        Expense[]      @relation("Submitter")
+  approvals       ApprovalLog[]
+  designatedRules ApprovalRule[] @relation("DesignatedApprover")
+}
+
+model Company {
+  id              String         @id @default(cuid())
+  name            String
+  defaultCurrency String
+  users           User[]
+  rules           ApprovalRule[]
+}
+
+model Expense {
+  id               String        @id @default(cuid())
+  amount           Float
+  originalCurrency String
+  convertedAmount  Float
+  category         String
+  description      String
+  date             DateTime
+  receiptUrl       String?
+  
+  // Smart Compliance & Fraud Prevention
+  isDuplicate      Boolean       @default(false)
+  policyViolation  String?
+  isWeekend        Boolean       @default(false)
+
+  // Advanced OCR Context
+  detectedLogo     String?
+  handwrittenNote  String?
+  items            String?       // Stored as JSON string
+  
+  status           String // PENDING, APPROVED, REJECTED
+  submitterId      String
+  submitter        User          @relation("Submitter", fields: [submitterId], references: [id])
+  logs             ApprovalLog[]
+  createdAt        DateTime      @default(now())
+}
+
+model ApprovalRule {
+  id                   String  @id @default(cuid())
+  companyId            String
+  company              Company @relation(fields: [companyId], references: [id])
+  type                 String // SEQUENCE, PERCENTAGE, SPECIFIC_APPROVER
+  threshold            Float? // e.g., 60 for 60%
+  stepOrder            Int
+  designatedApproverId String?
+  designatedApprover   User?   @relation("DesignatedApprover", fields: [designatedApproverId], references: [id])
+}
+
+model ApprovalLog {
+  id         String   @id @default(cuid())
+  expenseId  String
+  expense    Expense  @relation(fields: [expenseId], references: [id])
+  approverId String
+  approver   User     @relation(fields: [approverId], references: [id])
+  status     String // PENDING, APPROVED, REJECTED
+  comments   String?
+  createdAt  DateTime @default(now())
+}

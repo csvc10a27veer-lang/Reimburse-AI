@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px 2px rgba(168, 85, 247, 0.4), inset 0 0 10px 2px rgba(168, 85, 247, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 40px 10px rgba(168, 85, 247, 0.9), inset 0 0 20px 4px rgba(168, 85, 247, 0.9);
+    transform: scale(1.05);
+  }
+}
+
+.animate-glow-dot {
+  animation: pulse-glow 2.5s infinite ease-in-out;
+}
+
+@keyframes slide-bg {
+  0% { background-position: 0 0; }
+  100% { background-position: 56px 56px; }
+}
+
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

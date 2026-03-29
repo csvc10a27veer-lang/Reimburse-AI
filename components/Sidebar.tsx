@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, PlusSquare, List, CheckSquare, ShieldCheck, Users, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { signOut } from "next-auth/react";
+import { LayoutDashboard, PlusSquare, List, CheckSquare, ShieldCheck, Users, AlertTriangle, LogOut } from "lucide-react";
 
 export default function Sidebar({ user }: { user: any }) {
   const pathname = usePathname();
   const role = user.role;
+  const [showMenu, setShowMenu] = useState(false);
 
   const NavLink = ({ href, icon: Icon, label, badge, badgeColor }: any) => {
     const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
@@ -91,9 +94,23 @@ export default function Sidebar({ user }: { user: any }) {
       </nav>
 
       {/* Profile Footer */}
-      <div className="p-4 border-t border-[#222]">
-        <div className="flex items-center gap-3 bg-[#111] p-3 rounded-xl border border-[#333] hover:border-emerald-500/50 transition-colors cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center text-black font-bold text-sm">
+      <div className="p-4 border-t border-[#222] relative">
+        {showMenu && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 bg-[#111] border border-[#333] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.8)] overflow-hidden z-50">
+            <button 
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-[#1a1a1a] hover:text-red-400 transition-colors text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
+        )}
+        <div 
+          onClick={() => setShowMenu(!showMenu)}
+          className="flex items-center gap-3 bg-[#111] p-3 rounded-xl border border-[#333] hover:border-emerald-500/50 hover:bg-[#1a1a1a] transition-all cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+        >
+          <div className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center text-black font-bold text-sm shadow-[0_0_10px_rgba(52,211,153,0.3)]">
              {user.name.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div className="flex-1 overflow-hidden">
